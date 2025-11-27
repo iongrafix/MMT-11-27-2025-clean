@@ -1,0 +1,50 @@
+{
+  "name": "media-meta-tagger",
+  "version": "0.2.1",
+  "description": "Windows Properties Writer — Digital Branding Masters",
+  "main": "main.js",
+  "author": "Digital Branding Masters",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "dependencies": {
+    "exiftool-vendored": "^24.6.0"
+  },
+  "devDependencies": {
+    "electron": "^39.1.2",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "com.digitalbrandingmasters.media-meta-tagger",
+    "asar": true,
+    "asarUnpack": [
+      "DBM.PropTool.exe"
+    ],
+    "files": [
+      "index.html",
+      "styles.css",
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "xmp-io.js",
+      "win-prop.js",
+      "preview-addon.js",
+      "DBM.PropTool.exe",
+      "assets/**"
+    ],
+    "extraResources": [
+      "DBM.PropTool.exe"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": [
+        "Digital Branding Masters"
+      ]
+    }
+  }
+}

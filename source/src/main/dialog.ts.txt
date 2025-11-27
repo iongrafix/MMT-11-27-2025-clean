@@ -1,0 +1,12 @@
+// src/main/dialog.ts
+import { dialog, BrowserWindow } from 'electron';
+import { FILE_DIALOG_FILTERS } from '../common/supportedFiles';
+
+export async function openFileDialog(win: BrowserWindow) {
+  const result = await dialog.showOpenDialog(win, {
+    title: 'Choose media',
+    properties: ['openFile', 'multiSelections'],
+    filters: FILE_DIALOG_FILTERS
+  });
+  return result;
+}

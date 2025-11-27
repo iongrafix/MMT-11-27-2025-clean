@@ -1,0 +1,95 @@
+import React, { useMemo, useEffect, useState } from 'react';
+
+type Props = {
+  path?: string;
+  hidden?: boolean;
+};
+
+function getExt(p?: string) {
+  if (!p) return '';
+  const i = p.lastIndexOf('.');
+  return i >= 0 ? p.slice(i + 1).toLowerCase() : '';
+}
+function isImage(ext: string) {
+  return ['jpg','jpeg','png','gif','tif','tiff','webp','bmp','heic'].includes(ext);
+}
+function isVideo(ext: string) {
+  return ['mp4','mov','m4v','mkv','avi','webm'].includes(ext);
+}
+function isAudio(ext: string) {
+  return ['mp3','wav','flac','m4a','ogg'].includes(ext);
+}
+
+export const PreviewPane: React.FC<Props> = ({ path, hidden }) => {
+  const ext = useMemo(() => getExt(path), [path]);
+  const [imgErr, setImgErr] = useState(false);
+  const [vidErr, setVidErr] = useState(false);
+  useEffect(() => { setImgErr(false); setVidErr(false); }, [path]);
+
+  if (hidden || !path) return null;
+
+  // IMAGE (incl. HEIC)
+  if (isImage(ext)) {
+    return (
+      <div className="p-2">
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <img
+          src={`file://${path}`}
+          style={{ maxWidth: '100%', maxHeight: 480, objectFit: 'contain' }}
+          onError={() => setImgErr(true)}
+        />
+        {imgErr && (
+          <div className="mt-2 p-2 rounded border text-sm">
+            Preview failed. If this is <b>.HEIC</b>, make sure the <em>HEIF Image Extensions</em> are installed
+            (open the image in Photos to confirm). You can still use <b>Open in Photos</b>.
+            <div className="mt-2">
+              <button className="btn btn-outline" onClick={() => window.electron?.shell.openPath(path!)}>
+                Open in Photos
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // VIDEO
+  if (isVideo(ext)) {
+    return (
+      <div className="p-2">
+        <video
+          src={`file://${path}`}
+          controls
+          style={{ width: '100%', maxHeight: 480 }}
+          onError={() => setVidErr(true)}
+        />
+        {vidErr && (
+          <div className="mt-2 p-2 rounded border text-sm">
+            Video preview not supported for this codec. Use “Open in default app.”
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // AUDIO
+  if (isAudio(ext)) {
+    return (
+      <div className="p-2">
+        <audio src={`file://${path}`} controls onError={() => setVidErr(true)} />
+        {vidErr && <div className="mt-2 text-xs opacity-70">Preview failed. Use “Open in default app”.</div>}
+      </div>
+    );
+  }
+
+  // FALLBACK
+  return (
+    <div className="p-3 rounded border">
+      <div className="font-semibold mb-1">No preview</div>
+      <div className="opacity-80 text-sm">{path}</div>
+      <button className="btn btn-outline mt-2" onClick={() => window.electron?.shell.openPath(path!)}>
+        Open in default app
+      </button>
+    </div>
+  );
+};

@@ -1,0 +1,33 @@
+// src/renderer/FilePicker.tsx
+import React from 'react';
+import { FILE_DIALOG_FILTERS } from '../common/supportedFiles';
+
+type Props = {
+  value: string[];
+  onChange: (paths: string[]) => void;
+  buttonLabel?: string;
+};
+
+export const FilePicker: React.FC<Props> = ({ value, onChange, buttonLabel = 'Select files' }) => {
+  const openDialog = async () => {
+    const result = await window.electron?.dialog.open({
+      title: 'Choose media',
+      properties: ['openFile', 'multiSelections'],
+      filters: FILE_DIALOG_FILTERS
+    });
+    if (result?.filePaths?.length) onChange(result.filePaths);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <button className="btn btn-primary" onClick={openDialog}>{buttonLabel}</button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {value.map((p) => (
+          <input key={p} className="input input-bordered w-full" value={p} readOnly />
+        ))}
+      </div>
+    </div>
+  );
+};

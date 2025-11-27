@@ -1,0 +1,23 @@
+// src/main/ipc.ts
+import { ipcMain, shell, BrowserWindow, dialog } from 'electron';
+import { FILE_DIALOG_FILTERS } from '../common/supportedFiles';
+
+export function registerIpc(win: BrowserWindow) {
+  ipcMain.handle('dialog:open', async (_e, opts) => {
+    const result = await dialog.showOpenDialog(win, {
+      title: opts?.title || 'Choose files',
+      properties: opts?.properties || ['openFile', 'multiSelections'],
+      filters: opts?.filters || FILE_DIALOG_FILTERS,
+    });
+    return result;
+  });
+
+  ipcMain.handle('shell:openPath', async (_e, path: string) => {
+    return shell.openPath(path); // empty string on success
+  });
+
+  ipcMain.handle('shell:openExternal', async (_e, url: string) => {
+    await shell.openExternal(url);
+    return '';
+  });
+}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DBM Properties Writer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050811;
+        --panel: #0c101d;
+        --panel-soft: #12172a;
+        --border: #252a3b;
+        --accent: #4f8bff;
+        --text: #f5f7ff;
+        --muted: #9aa3c7;
+        --danger: #ff5370;
+        --radius-lg: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #101938 0, #050811 55%);
+        color: var(--text);
+      }
+      header {
+        padding: 10px 18px;
+        border-bottom: 1px solid #15192a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(
+          to right,
+          rgba(79, 139, 255, 0.18),
+          transparent
+        );
+      }
+      header h1 {
+        font-size: 15px;
+        margin: 0;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      header span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      main {
+        display: grid;
+        grid-template-columns: minmax(360px, 480px) 1fr;
+        height: calc(100vh - 46px);
+      }
+      .left,
+      .right {
+        padding: 14px 16px 16px;
+      }
+      .card {
+        background: radial-gradient(circle at top left, #141a33, #080b16);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        padding: 14px 14px 12px;
+        box-shadow: 0 18px 30px rgba(0, 0, 0, 0.5);
+      }
+      label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #1f2436;
+        background: #050816;
+        color: var(--text);
+        padding: 6px 8px;
+        font-size: 13px;
+        outline: none;
+      }
+      input[type="text"]:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(79, 139, 255, 0.25);
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+        font-family: inherit;
+      }
+      .field {
+        margin-bottom: 10px;
+      }
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .buttons {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        border-radius: 999px;
+        border: 1px solid #2b3148;
+        background: #121831;
+        color: var(--text);
+        font-size: 12px;
+        padding: 6px 14px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      button.primary {
+        background: linear-gradient(135deg, #4f8bff, #6f6bff);
+        border-color: transparent;
+      }
+      button.danger {
+        background: #281018;
+        border-color: #592233;
+        color: #ff9aac;
+      }
+      button.small {
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+      .toolbar span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      #log {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+          Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        background: #050814;
+        border-radius: 10px;
+        border: 1px solid #191f31;
+        padding: 8px;
+        color: #cbd3ff;
+        height: 170px;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+      .preview-box {
+        border-radius: var(--radius-lg);
+        border: 1px dashed #31374f;
+        background: rgba(5, 10, 30, 0.9);
+        height: calc(100% - 26px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .preview-meta {
+        position: absolute;
+        right: 20px;
+        bottom: 16px;
+        background: rgba(3, 7, 18, 0.85);
+        border-radius: 10px;
+        padding: 6px 9px;
+        border: 1px solid #222842;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .preview-wrap {
+        position: relative;
+        height: 100%;
+      }
+      .tag-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>DBM Properties Writer</h1>
+        <span>Media Meta Tagger • Title / Comments / Tags</span>
+      </div>
+      <button id="btnLogs" class="small">Open Logs Folder</button>
+    </header>
+
+    <main>
+      <section class="left">
+        <div class="card">
+          <div class="field">
+            <label>Active file</label>
+            <input id="activeFile" type="text" readonly value="No file selected" />
+          </div>
+
+          <div class="field">
+            <label>Title</label>
+            <input
+              id="title"
+              type="text"
+              placeholder="Searchable title (Explorer &amp; Finder)"
+            />
+          </div>
+
+          <div class="field">
+            <label>Comments / Description</label>
+            <textarea
+              id="comments"
+              placeholder="Searchable notes on Windows &amp; macOS"
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label>Tags / Keywords</label>
+            <div class="tag-row">
+              <input
+                id="tagsWin"
+                type="text"
+                placeholder="Windows Tags (Explorer)"
+              />
+              <input
+                id="tagsMac"
+                type="text"
+                placeholder="macOS Finder keywords"
+              />
+            </div>
+            <div class="hint">
+              Use comma or semicolon between tags. Both boxes are merged and
+              written as keywords; Explorer shows them in the Tags column.
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button id="btnSelect">Select File</button>
+            <button id="btnRead">Read</button>
+            <button id="btnApply" class="primary">Apply</button>
+            <button id="btnClear" class="danger">Clear</button>
+          </div>
+
+          <div class="toolbar">
+            <span id="status">Ready.</span>
+          </div>
+
+          <div class="field" style="margin-top: 8px">
+            <label>Log</label>
+            <div id="log"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="right">
+        <div class="card preview-wrap">
+          <label>Preview</label>
+          <div id="preview" class="preview-box">
+            Select a file to preview.
+          </div>
+          <div class="preview-meta" id="previewMeta">–</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

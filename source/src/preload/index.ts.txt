@@ -1,0 +1,12 @@
+// src/preload/index.ts
+import { contextBridge, ipcRenderer } from 'electron';
+
+contextBridge.exposeInMainWorld('electron', {
+  dialog: {
+    open: (opts: any) => ipcRenderer.invoke('dialog:open', opts),
+  },
+  shell: {
+    openPath: (path: string) => ipcRenderer.invoke('shell:openPath', path),
+    openExternal: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
+  },
+});

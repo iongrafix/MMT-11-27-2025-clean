@@ -1,0 +1,30 @@
+*{ box-sizing: border-box; }
+body{ margin:0; font-family:Segoe UI,Roboto,Arial,sans-serif; background:#0f1420; color:#e7ecf5; }
+header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #1f2b3d; }
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand img{ height:28px; opacity:.9; }
+.brand h1{ margin:0; font-size:22px; font-weight:700; }
+.actions{ display:flex; align-items:center; gap:12px; }
+.actions button{ padding:8px 12px; border-radius:8px; border:1px solid #31405c; background:#1b2233; color:#e7ecf5; cursor:pointer; }
+.actions .auto{ display:flex; align-items:center; gap:6px; opacity:.9; }
+
+main{ display:grid; grid-template-columns: 1fr 420px; gap:12px; padding:12px; height: calc(100vh - 62px); }
+.left{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+#list{ background:#0d1220; border:1px solid #1f2b3d; border-radius:10px; padding:10px; min-height:80px; }
+.file{ padding:8px; border-radius:8px; border:1px solid #24324d; margin-bottom:8px; cursor:pointer; }
+.file.selected{ border-color:#4a8bff; background:#141b2a; }
+
+.toolbar{ display:flex; gap:8px; }
+.toolbar button{ padding:8px 12px; border-radius:8px; border:1px solid #31405c; background:#182034; color:#e7ecf5; cursor:pointer; }
+
+.fields{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+.fields .row{ display:flex; flex-direction:column; gap:6px; }
+.fields input{ padding:10px; border-radius:8px; border:1px solid #223252; background:#0d1524; color:#e7ecf5; }
+
+.status{ font-size:12px; opacity:.85; }
+
+.preview{ border:1px solid #1f2b3d; border-radius:12px; background:#0d1220; display:flex; flex-direction:column; }
+.preview-header{ padding:10px 12px; border-bottom:1px solid #1f2b3d; display:flex; justify-content:space-between; align-items:center; }
+.preview-body{ position:relative; height:100%; padding:8px; display:flex; align-items:center; justify-content:center; }
+.placeholder{ opacity:.6; text-align:center; font-size:14px; }
+.preview-buttons button{ padding:6px 10px; border-radius:7px; border:1px solid #31405c; background:#182034; color:#e7ecf5; cursor:pointer; }
