@@ -49,6 +49,25 @@ function createWindow() {
     mainWindow = null;
   });
 }
+// Simple tools check so app startup does not crash
+async function ensureTools() {
+  try {
+    if (process.platform === 'win32') {
+      // On Windows we expect a bundled exiftool.exe
+      const exifPath = path.join(MTAG_ROOT, 'tools', 'exiftool.exe');
+      if (!fs.existsSync(exifPath)) {
+        log('ensureTools: exiftool.exe not found at', exifPath);
+      } else {
+        log('ensureTools: exiftool.exe OK at', exifPath);
+      }
+    } else {
+      // On macOS we use the Homebrew exiftool in /opt/homebrew/bin/exiftool
+      log('ensureTools: macOS – using Homebrew exiftool');
+    }
+  } catch (err) {
+    log('ensureTools ERROR', err.message || err);
+  }
+}
 
 app.on('ready', () => {
   createWindow();
@@ -64,50 +83,16 @@ app.on('activate', () => {
 });
 
 // ---------------------------------------------------------
-// Tools / exiftool setup
 // ---------------------------------------------------------
-const MTAG_ROOT = path.join('C:\\', 'Mtag'); // keep the existing root
-const EXIFTOOL_EXE_WIN = path.join(MTAG_ROOT, 'tools', 'exiftool.exe');
+// Tools / exiftool setup (cross-platform)
+const EXIFTOOL_PATH =
+  process.platform === 'win32'
+    ? path.join(MTAG_ROOT, 'tools', 'exiftool.exe')   // Windows
+    : '/opt/homebrew/bin/exiftool';                   // macOS (Homebrew)
 
-function ensureTools() {
-  try {
-    if (!fs.existsSync(MTAG_ROOT)) {
-      fs.mkdirSync(MTAG_ROOT, { recursive: true });
-    }
-    const toolsDir = path.join(MTAG_ROOT, 'tools');
-    if (!fs.existsSync(toolsDir)) {
-      fs.mkdirSync(toolsDir, { recursive: true });
-    }
-    log('Tools directory ready at', toolsDir);
-  } catch (err) {
-    log('ensureTools ERROR', err.message);
-  }
-}
-
-function isMedia(file) {
-  if (!file) return false;
-  const ext = path.extname(file).toLowerCase();
-  return ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.heic', '.mov', '.mp4'].includes(ext);
-}
-
-function isVideo(file) {
-  if (!file) return false;
-  const ext = path.extname(file).toLowerCase();
-  return ['.mp4', '.mov'].includes(ext);
-}
-
-// ---------------------------------------------------------
-// Low-level exiftool runner (Windows)
-// ---------------------------------------------------------
 function runExif(args, cwd) {
   return new Promise((resolve, reject) => {
-    if (!fs.existsSync(EXIFTOOL_EXE_WIN)) {
-      const err = new Error(`exiftool.exe not found in ${EXIFTOOL_EXE_WIN}`);
-      log('runExif ERROR', err.message);
-      return reject(err);
-    }
-
-    const child = spawn(EXIFTOOL_EXE_WIN, args, {
+    const child = spawn(EXIFTOOL_PATH, args, {
       cwd: cwd || undefined,
       windowsHide: true,
     });
@@ -134,11 +119,11 @@ function runExif(args, cwd) {
         log('runExif exit ERROR', err.message);
         return reject(err);
       }
+
       resolve({ stdout, stderr });
     });
   });
 }
-
 // ---------------------------------------------------------
 // IPC: dialogs
 // ---------------------------------------------------------
@@ -372,6 +357,32 @@ async function safeWrite(args, file) {
   // Simple safety wrapper: write directly; you already have backups by versioning/zips
   const cwd = path.dirname(file);
   await runExif(args, cwd);
+}
+// ---------------------------------------------------------
+// Media helper: which files should we treat as taggable media?
+// ---------------------------------------------------------
+const MEDIA_EXTS = [
+  '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.heic',
+  '.mov', '.mp4', '.m4v', '.avi', '.heif', '.bmp'
+];
+
+function isMedia(file) {
+  if (!file) return false;
+  const ext = path.extname(file).toLowerCase();
+  return MEDIA_EXTS.includes(ext);
+}
+const VIDEO_EXTS = [
+  '.mp4',
+  '.mov',
+  '.m4v',
+  '.avi',
+  '.mkv'
+];
+
+function isVideo(file) {
+  if (!file) return false;
+  const ext = path.extname(file).toLowerCase();
+  return VIDEO_EXTS.includes(ext);
 }
 
 // ---------------------------------------------------------
